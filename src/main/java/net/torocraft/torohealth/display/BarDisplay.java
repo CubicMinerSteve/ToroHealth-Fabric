@@ -1,72 +1,80 @@
 package net.torocraft.torohealth.display;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.torocraft.torohealth.bars.HealthBarRenderer;
+import net.torocraft.torohealth.util.UnlimitedValue;
 
 public class BarDisplay {
 
-  private static final Identifier ICON_TEXTURES = new Identifier("textures/gui/icons.png");
-  private final MinecraftClient mc;
-  private final DrawableHelper gui;
+	private static final Identifier ICON_TEXTURES = new Identifier("textures/gui/icons.png");
 
-  public BarDisplay(MinecraftClient mc, DrawableHelper gui) {
-    this.mc = mc;
-    this.gui = gui;
-  }
+	private final MinecraftClient mc;
 
-  private String getEntityName(LivingEntity entity) {
-    return entity.getDisplayName().getString();
-  }
+	public BarDisplay(MinecraftClient mc) {
+		this.mc = mc;
+	}
 
-  public void draw(MatrixStack matrix, LivingEntity entity) {
-    int xOffset = 0;
+	public void draw(DrawContext drawContext, LivingEntity entity) {
 
-    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-    RenderSystem.setShader(GameRenderer::getPositionTexShader);
-    RenderSystem.setShaderTexture(0, ICON_TEXTURES);
-    RenderSystem.enableBlend();
+		// The starting offset of horizontal position.
+		int xOffset = 0;
+		TextRenderer textRenderer = mc.textRenderer;
 
-    HealthBarRenderer.render(matrix, entity, 63, 14, 130, false);
-    String name = getEntityName(entity);
-    int healthMax = MathHelper.ceil(entity.getMaxHealth());
-    int healthCur = Math.min(MathHelper.ceil(entity.getHealth()), healthMax);
-    String healthText = healthCur + "/" + healthMax;
-    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		// Set render color to 0xFFFFFF and make it default 100% opaque white.
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+		// Texture Settings.
+		RenderSystem.setShaderTexture(0, ICON_TEXTURES);
+		// Enable OpenGL Blend to process colors.
+		RenderSystem.enableBlend();
 
-    DrawableHelper.drawStringWithShadow(matrix, mc.textRenderer, name, xOffset, (int) 2, 16777215);
+		MatrixStack matrix = drawContext.getMatrices();
+		HealthBarRenderer.render(matrix, entity, 63, 14, 130, false);
 
-    mc.textRenderer.drawWithShadow(matrix, name, xOffset, 2, 16777215);
-    xOffset += mc.textRenderer.getWidth(name) + 5;
+		String name = getEntityName(entity);
+		int healthMax = MathHelper.ceil(UnlimitedValue.getWideRangedAttribute(entity, EntityAttributes.GENERIC_MAX_HEALTH));
+		int healthCur = MathHelper.ceil(entity.getHealth());
+		String healthText = healthCur + "/" + healthMax;
 
-    renderHeartIcon(matrix, xOffset, (int) 1);
-    xOffset += 10;
+		drawContext.drawTextWithShadow(textRenderer, name, xOffset, 2, 0xffffff);
+		xOffset += textRenderer.getWidth(name) + 5;
 
-    mc.textRenderer.drawWithShadow(matrix, healthText, xOffset, 2, 0xe0e0e0);
-    xOffset += mc.textRenderer.getWidth(healthText) + 5;
+		renderHeartIcon(drawContext, xOffset, (int) 2);
+		xOffset += 10;
 
-    int armor = entity.getArmor();
+		drawContext.drawTextWithShadow(textRenderer, healthText, xOffset, 2, 0xe0e0e0);
+		xOffset += textRenderer.getWidth(healthText) + 5;
 
-    if (armor > 0) {
-      renderArmorIcon(matrix, xOffset, (int) 1);
-      xOffset += 10;
-      mc.textRenderer.drawWithShadow(matrix, entity.getArmor() + "", xOffset, 2, 0xe0e0e0);
-    }
-  }
+		int armor = entity.getArmor();
+		if (armor > 0) {
+			renderArmorIcon(drawContext, xOffset, (int) 2);
+			xOffset += 10;
+			drawContext.drawTextWithShadow(textRenderer, entity.getArmor() + "", xOffset, 2, 0xe0e0e0);
+		}
+	}
 
-  private void renderArmorIcon(MatrixStack matrix, int x, int y) {
-    RenderSystem.setShaderTexture(0, ICON_TEXTURES);
-    gui.drawTexture(matrix, x, y, 34, 9, 9, 9);
-  }
+	private String getEntityName(LivingEntity entity) {
+		return entity.getDisplayName().getString();
+	}
 
-  private void renderHeartIcon(MatrixStack matrix, int x, int y) {
-    RenderSystem.setShaderTexture(0, ICON_TEXTURES);
-    gui.drawTexture(matrix, x, y, 16 + 36, 0, 9, 9);
-  }
+	private void renderArmorIcon(DrawContext drawContext, int x, int y) {
+		RenderSystem.setShaderTexture(0, ICON_TEXTURES);
+		drawContext.drawTexture(ICON_TEXTURES, x, y, 34, 9, 9, 9);
+	}
+
+	private void renderHeartIcon(DrawContext drawContext, int x, int y) {
+		RenderSystem.setShaderTexture(0, ICON_TEXTURES);
+		drawContext.drawTexture(ICON_TEXTURES, x, y, 16 + 36, 0, 9, 9);
+	}
+
 }
