@@ -8,6 +8,6 @@ Customization options are available for changing the color of the damage numbers
 
 **I have added a configuration GUI screen for this GUI version. To open it, you need to bind one key in control settings. You can change and save config in the GUI or edit the config file. The change you make will instantly apply.**
 
-### [Download from Releases]
+### [Download from Releases] ->
 
 ![Screenshot](https://i.imgur.com/C9oBhZ5.png)
