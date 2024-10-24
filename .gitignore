@@ -1,15 +1,9 @@
-.history
 # gradle
 
 .gradle/
 build/
 out/
 classes/
-saves/
-config/
-logs/
-options.txt
-usercache.json
 
 # eclipse
 
@@ -30,8 +24,17 @@ bin/
 .classpath
 .project
 
+# macos
+
+*.DS_Store
+
 # fabric
 
 run/
 
-*.7z
+# java
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
