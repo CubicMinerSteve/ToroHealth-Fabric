@@ -1,0 +1,18 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "net.torocraft.torohealth.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [],
+	"client": [
+		"InGameHudMixin",
+		"PlayerEntityMixin",
+		"WorldRendererMixin",
+		"AttributeInstanceInvoker",
+		"DrawContextAccessor"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"refmap": "torohealth-refmap.json"
+}
